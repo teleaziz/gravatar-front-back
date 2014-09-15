@@ -1,7 +1,7 @@
 var express = require("express");
 
 var router = express.Router();
-var utility = require("mdhelper")
+var utility = require("../public/javascripts/util")
 var mongoose = require("mongoose");
 mongoose.connect(process.env.MONGOHQ_URL);
 

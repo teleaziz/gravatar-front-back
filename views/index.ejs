@@ -34,6 +34,7 @@
 
             $.ajax("/api/questions").then(function(list) { 
                     $.ajax('api/avatar').done(function(isClient) { // get PROCESS.ENV.ISCLIENT
+                    console.log(isClient);
                         if (isClient != "client") { // if backend url resolving
                            list.forEach(function(elem) { $.ajax("api/gravatar/" + elem.email).done(function(response) {
                                 elem.avatar = response;

@@ -103,7 +103,7 @@ router.get("/gravatar/:email", function(req, res) {
 });
 
 
-router.get("/avatar", function(req, res) {
+router.get("/avatar", function(req, res) {  // use export ISCLIENT="client" for client side avatar url resolving
   // Return the gravatar url as text
   res.end(process.env.ISCLIENT);
 });

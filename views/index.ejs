@@ -15,7 +15,7 @@
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/js/bootstrap.min.js"></script>
     <script src="http://builds.handlebarsjs.com.s3.amazonaws.com/handlebars-v2.0.0.js"></script>
     <script>
-        function avatarUrl(email) {
+        function avatarUrl(email) {  // resolve avatar url locally using the same module from the backend
 	    console.log("clientSide");
             return "https://www.gravatar.com/avatar/" + md5(email);
 
@@ -32,29 +32,27 @@
                 $(".output").html(html);
             };
 
-            $.ajax("/api/questions").then(function(list) {
+            $.ajax("/api/questions").then(function(list) { 
                 list.forEach(function(elem) {
-                    $.ajax('api/avatar').done(function(isClient) {
-                        if (isClient != "client") {
+                    $.ajax('api/avatar').done(function(isClient) { // get PROCESS.ENV.ISCLIENT
+                        if (isClient != "client") { // if backend url resolving
                             $.ajax("api/gravatar/" + elem.email).done(function(response) {
                                 elem.avatar = response;
                                 data = {
                                     questions: list
                                 };
-                                refreshView();
                             });
-                        } else {
+                        } else { // if clientside avatar url resolving
                             elem.avatar = avatarUrl(elem.email);
                             data = {
                                 questions: list
                             };
-                            refreshView();
                         }
+                        
+                    refreshView();
+
                     });
-
-
                 });
-
             });
             $(".output").on("click", "button", function(e) {
                 var $button = $(this);

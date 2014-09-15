@@ -1,7 +1,7 @@
 var express = require("express");
 
 var router = express.Router();
-
+var utility = require("mdhelper")
 var mongoose = require("mongoose");
 mongoose.connect(process.env.MONGOHQ_URL);
 
@@ -99,6 +99,13 @@ router.get("/questions/:questionCode", function(req, res) {
 
 router.get("/gravatar/:email", function(req, res) {
   // Return the gravatar url as text
+  res.end("https://www.gravatar.com/avatar/" + utility.md5(req.params.email));
+});
+
+
+router.get("/avatar", function(req, res) {
+  // Return the gravatar url as text
+  res.end(process.env.ISCLIENT);
 });
 
 module.exports = router;

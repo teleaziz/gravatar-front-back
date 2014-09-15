@@ -1,104 +1,153 @@
 <!DOCTYPE html>
 <html>
-  <head>
+
+<head>
     <title></title>
-    <meta charset="utf-8"/>
-    <meta http-equiv="X-UA-Compatible" content="IE=edge"/>
-    <meta name="viewport" content="width=device-width, initial-scale=1"/>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap.min.css">
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap-theme.min.css">
     <style>
     </style>
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
+    <script src="/javascripts/util.js"></script>
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/js/bootstrap.min.js"></script>
     <script src="http://builds.handlebarsjs.com.s3.amazonaws.com/handlebars-v2.0.0.js"></script>
     <script>
-      $(function() {
-        var source   = $("#template").html();
-        var template = Handlebars.compile(source);
-        var data = {};
+        function avatarUrl(email) {
+	    console.log("clientSide");
+            return "https://www.gravatar.com/avatar/" + md5(email);
 
-        var refreshView = function(){
-            var html = template(data);
-            $(".output").html(html);
         };
 
-        refreshView({});
 
-        $.ajax("/api/questions").then(function(list) {
-          data = { questions: list };
-          refreshView();
-        });
+        $(function() {
+            var source = $("#template").html();
+            var template = Handlebars.compile(source);
+            var data = {};
+            var avatars = [];
+            var refreshView = function() {
+                var html = template(data);
+                $(".output").html(html);
+            };
 
-        $(".output").on("click", "button", function(e) {
-          var $button = $(this);
-          var deleteFromDOM = function() {
-            // DELETE from the DOM
-            $button.parents("tr").remove();
-          }
+            $.ajax("/api/questions").then(function(list) {
+                list.forEach(function(elem) {
+                    $.ajax('api/avatar').done(function(isClient) {
+                        if (isClient != "client") {
+                            $.ajax("api/gravatar/" + elem.email).done(function(response) {
+                                elem.avatar = response;
+                                data = {
+                                    questions: list
+                                };
+                                refreshView();
+                            });
+                        } else {
+                            elem.avatar = avatarUrl(elem.email);
+                            data = {
+                                questions: list
+                            };
+                            refreshView();
+                        }
+                    });
 
-          // DELETE Through the API
-          $.ajax("/api/questions/" + $button.data("code"), { type: 'DELETE' }).then(function(result) {
-            deleteFromDOM();
-          });
 
-          return false;
-        });
+                });
 
-        $(".output").on("dblclick", ".question-body", function() {
-            var $this = $(this);
-            var index = $this.parents("tr").data("index");
-            var question = data.questions[index];
-            question.editing = true;
-            refreshView();
-            $(".output tr[data-index=" + index + "] input").focus();
-        });
+            });
+            $(".output").on("click", "button", function(e) {
+                var $button = $(this);
+                var deleteFromDOM = function() {
+                    // DELETE from the DOM
+                    $button.parents("tr").remove();
+                }
 
-        $(".output").on("keyup", ".question-input input", function(e) {
-            if (e.keyCode === 13) {
-              var $this = $(this);
-              var code = $this.parents("tr").data("code");
-              var newVal = $this.val();
-              var index = $this.parents("tr").data("index");
-              var question = data.questions[index];
+                // DELETE Through the API
+                $.ajax("/api/questions/" + $button.data("code"), {
+                    type: 'DELETE'
+                }).then(function(result) {
+                    deleteFromDOM();
+                });
 
-              $.ajax("/api/questions/" + code, { type: 'PUT', data: { question: newVal } } ).then(function(updateQuestion) {
-                question.question = $this.val();
-                question.editing = false;
+                return false;
+            });
+
+            $(".output").on("dblclick", ".question-body", function() {
+                var $this = $(this);
+                var index = $this.parents("tr").data("index");
+                var question = data.questions[index];
+                question.editing = true;
                 refreshView();
-              });
+                $(".output tr[data-index=" + index + "] input").focus();
+            });
 
-            }
-          });
 
-      });
+
+            $(".output").on("keyup", ".question-input input", function(e) {
+                if (e.keyCode === 13) {
+                    var $this = $(this);
+                    var code = $this.parents("tr").data("code");
+                    var newVal = $this.val();
+                    var index = $this.parents("tr").data("index");
+                    var question = data.questions[index];
+
+                    $.ajax("/api/questions/" + code, {
+                        type: 'PUT',
+                        data: {
+                            question: newVal
+                        }
+                    }).then(function(updateQuestion) {
+                        question.question = $this.val();
+                        question.editing = false;
+                        refreshView();
+                    });
+
+                }
+            });
+
+        });
     </script>
 
-  </head>
-  <body>
+</head>
+
+<body>
     <div class="container">
-    <div class="output"></div>
-    <script id="template" type="text/x-handlebars-template">
-      <table class="table table-striped">
-      <tr>
-        <th>Email</th>
-        <th>Question</th>
-      </tr>
-      {{#each questions}}
-        <tr data-code="{{code}}" data-index="{{@index}}">
-          <td>{{email}}</td>
-          <td>
-            {{#if editing}}
-              <div class="question-input"><input value="{{question}}"></div>
-            {{else}}
-              <div class="question-body">{{question}}</div>
-            {{/if}}
-          </td>
-          <td><button type="button" class="btn btn-danger" data-code="{{code}}">-</button></td>
-        </tr>
-      {{else}}
-        <tr><td>No questions found</td></tr>
-      {{/each}}
-    </script>
-  </body>
+        <div class="output"></div>
+        <script id="template" type="text/x-handlebars-template">
+            <table class="table table-striped">
+                <tr>
+                    <th>avatar</th>
+                    <th>Email</th>
+                    <th>Question</th>
+                </tr>
+                {{#each questions}}
+                <tr data-code="{{code}}" data-index="{{@index}}">
+                    <td>
+                        <img src="{{avatar}}" />
+                    </td>
+                    <td>{{email}}</td>
+                    <td>
+                        {{#if editing}}
+                        <div class="question-input">
+                            <input value="{{question}}">
+                        </div>
+                        {{else}}
+                        <div class="question-body">{{question}}</div>
+                        {{/if}}
+                    </td>
+
+                    <td>
+                        <button type="button" class="btn btn-danger" data-code="{{code}}">-</button>
+                    </td>
+
+                </tr>
+                {{else}}
+                <tr>
+                    <td>No questions found</td>
+                </tr>
+                {{/each}}
+        </script>
+</body>
+
 </html>

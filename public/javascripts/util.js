@@ -282,4 +282,12 @@ var md5 = function(str) {
   return temp.toLowerCase();
 };
 
-module.exports.md5 = md5;
+
+(function(exports){
+
+    // your code goes here
+
+   exports.md5 = md5 ; 
+
+})(typeof exports === 'undefined'? this['mymodule']={}: exports);
+

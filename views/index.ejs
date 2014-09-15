@@ -33,27 +33,25 @@
             };
 
             $.ajax("/api/questions").then(function(list) { 
-                list.forEach(function(elem) {
                     $.ajax('api/avatar').done(function(isClient) { // get PROCESS.ENV.ISCLIENT
                         if (isClient != "client") { // if backend url resolving
-                            $.ajax("api/gravatar/" + elem.email).done(function(response) {
+                           list.forEach(function(elem) { $.ajax("api/gravatar/" + elem.email).done(function(response) {
                                 elem.avatar = response;
-                                data = {
-                                    questions: list
-                                };
-                            });
-                        } else { // if clientside avatar url resolving
-                            elem.avatar = avatarUrl(elem.email);
-                            data = {
-                                questions: list
-                            };
+                                data = {questions: list};
+                                refreshView();
+                               });
+                        });}
+                        else { // if clientside avatar url resolving
+                            list.forEach(function(elem){elem.avatar = avatarUrl(elem.email);});
+                            data = {questions: list};
+                            refreshView();
+
                         }
                         
-                    refreshView();
 
                     });
                 });
-            });
+            
             $(".output").on("click", "button", function(e) {
                 var $button = $(this);
                 var deleteFromDOM = function() {

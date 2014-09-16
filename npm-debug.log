@@ -1,0 +1,22 @@
+0 info it worked if it ends with ok
+1 verbose cli [ '/home/aziz/.nvm/v0.11.13/bin/node',
+1 verbose cli   '/home/aziz/.nvm/v0.11.13/bin/npm',
+1 verbose cli   'run',
+1 verbose cli   'dev',
+1 verbose cli   'v' ]
+2 info using npm@1.4.9
+3 info using node@v0.11.13
+4 error Error: ENOENT, open '/home/aziz/books/test3/api.test/node_modules/dev/package.json'
+4 error     at Error (native)
+5 error If you need help, you may report this *entire* log,
+5 error including the npm and node versions, at:
+5 error     <http://github.com/npm/npm/issues>
+6 error System Linux 3.13.0-35-generic
+7 error command "/home/aziz/.nvm/v0.11.13/bin/node" "/home/aziz/.nvm/v0.11.13/bin/npm" "run" "dev" "v"
+8 error cwd /home/aziz/books/test3/api.test
+9 error node -v v0.11.13
+10 error npm -v 1.4.9
+11 error path /home/aziz/books/test3/api.test/node_modules/dev/package.json
+12 error code ENOENT
+13 error errno -2
+14 verbose exit [ -2, true ]

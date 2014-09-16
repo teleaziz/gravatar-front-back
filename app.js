@@ -4,7 +4,7 @@ var favicon = require('serve-favicon');
 var logger = require('morgan');
 var cookieParser = require('cookie-parser');
 var bodyParser = require('body-parser');
-
+var twit = require ('twit');
 var routes = require('./routes/index');
 var users = require('./routes/users');
 
@@ -58,6 +58,18 @@ app.use(function(err, req, res, next) {
         message: err.message,
         error: {}
     });
+});
+var Twit = require('twit')
+
+var T = new Twit({
+    consumer_key:         process.env.TWITTER_API_KEY
+  , consumer_secret:     process.env.TWITTER_API_SECRET
+  , access_token:         process.env.TWITTER_A_TOKEN
+  , access_token_secret:  process.env.TWITTER_A_TOKEN_SECRET
+});
+
+T.post('statuses/update', { status: 'hello from API #codinghousephase2' }, function(err, data, response) {
+  console.log(data);
 });
 
 module.exports = app;
